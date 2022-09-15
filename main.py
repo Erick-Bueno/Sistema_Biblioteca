@@ -55,10 +55,10 @@ class App(Verify):
         self.livraria.dateEdit_2.setDate(Data_atual)
         self.livraria.pushButton_5.clicked.connect(self.adicionar_cliente)
         self.verificando()
-        #self.enviarr_email()
+        self.enviarr_email()
         self.livraria.show()
         self.app.exec()
-        #_thread.start_new_thread(self.enviarr_email,("1",1))
+        _thread.start_new_thread(self.enviarr_email,("1",1))
   
         
         
@@ -190,10 +190,10 @@ class App(Verify):
         QMessageBox.warning(self.livraria, "erro","selecione o cpf do cliente antes de alocar")  
                
       
-    #def enviarr_email(self):
+    def enviarr_email(self):
        
-        #self.z = aloc_atrasada()
-        #self.z.alocs_atrasadas()
+        self.z = aloc_atrasada()
+        self.z.alocs_atrasadas()
  
     def devolucao(self):
         try:

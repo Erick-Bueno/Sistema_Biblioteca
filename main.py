@@ -37,7 +37,6 @@ class App(Verify):
         #funcão que e ativada sempre q o sistema inicia
         self.app = QtWidgets.QApplication([])
         self.livraria = uic.loadUi("app.ui")
-        self.email = uic.loadUi("email.ui")
         self.livraria.setWindowTitle("livraria")
         self.livraria.pushButton.clicked.connect(self.tela_clietes)
         self.livraria.pushButton_2.clicked.connect(self.tela_livros)

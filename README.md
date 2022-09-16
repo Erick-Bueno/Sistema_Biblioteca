@@ -8,5 +8,9 @@
 
 Implementações: 
  .Envio de email automatico para alocações atrasadas;
+ 
+ 
  .Bloqueio de usuario com alocações atrasadas;
+ 
+ 
  .Usuarios bloqueados não podem realizar alocações;

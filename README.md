@@ -7,6 +7,8 @@
 ![tela_devolução](https://user-images.githubusercontent.com/101439440/190521153-c52e7bdb-b811-4f1b-9b46-baa9f623ce0c.JPG)
 
 Implementações: 
+ 
+ 
  .Envio de email automatico para alocações atrasadas;
  
  

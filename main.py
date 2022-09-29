@@ -1,5 +1,6 @@
 from datetime import date
 from distutils.log import error
+from mmap import PAGESIZE
 from banco import conectar_banco
 from imgs import icones
 from PyQt5 import QtWidgets
@@ -25,9 +26,12 @@ from alocacao import alocar
 from cadastrar_livro import cadastro_livro
 from alocacao_atrasada import aloc_atrasada
 from devolution import devo
-
-
-
+from reportlab.pdfgen import canvas
+from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Table, Paragraph, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
 
 
 
@@ -156,6 +160,11 @@ class App(Verify):
         
             self.cliente_cpf = self.livraria.tableWidget.currentItem().text()
             self.data_alocacao = self.livraria.dateEdit_2.date().toPyDate()
+            quantidades_dias = abs((self.data_alocacao - self.data_atual).days)
+            valor_a_pagar = quantidades_dias * 5.50 #valor ficticio
+            if quantidades_dias <= 0:
+                valor_a_pagar = 5
+            
                 #verificar se cliente esta bloqueado
             self.d = alocar()
             self.d.verificar_status_block(self.cliente_cpf)
@@ -166,7 +175,6 @@ class App(Verify):
             self.b = alocar()
             self.b.pegar_id_livro(self.codigo_livro_alocado)
             self.idlivro = self.b.c.dados[0][0]
-            print(self.idlivro)
             
             #pegar id do cliente pelo cpf
             self.a = alocar()
@@ -183,6 +191,44 @@ class App(Verify):
             self.a = alocar()
             self.a.inserir_alocacao(self.id_cliente,self.idlivro,self.data_alocacao)
             QMessageBox.about(self.livraria,"aviso","livro alocado")
+            #pegar nome do livro
+            self.x = conectar_banco()
+            self.x.executa_dql(f"select nome from livros where codigo = {self.codigo_livro_alocado}")
+            #Nome do livro
+            self.o = conectar_banco()
+            self.o.executa_dql(f"select nome from livros where codigo = {self.codigo_livro_alocado}")
+            nome = self.o.dados[0][0]
+            #gerar tikect(nota_fiscal)
+            Dados = [
+                        ["Data_Alocação", "Data_Devolução", "Livro", "Preço"],
+                        [
+                            self.data_atual,
+                            self.data_alocacao,
+                            nome,
+                            f"{float(valor_a_pagar)}R$",
+                        ]
+                        
+                    ]
+            pdf = SimpleDocTemplate("nota_fiscal_livro.pdf", pagesize = A4)
+            styless = getSampleStyleSheet()
+            title_style = styless["Heading1"]
+            title_style.alignment = 1
+            title = Paragraph("Nota Fiscal", title_style)
+            
+            style = TableStyle(
+                [
+                     ("BOX", (0,0),(-1,-1),1,colors.black),
+                     ("GRID", (0,0), (4,4),1,colors.black ),
+                     ("ALIGN", (0,0), (-1,-1), "CENTER")
+                ]
+            )
+            tabela = Table(Dados, style = style)
+            pdf.build([title, tabela])
+      
+           
+
+
+
        except IndexError:
         QMessageBox.warning(self.livraria,"erro","nenhum livro encontrado com este codigo") 
        except AttributeError:
@@ -195,17 +241,35 @@ class App(Verify):
         self.z.alocs_atrasadas()
  
     def devolucao(self):
-        try:
+     
             self.codigo_livro_devoluir = self.livraria.lineEdit_13.text()
             self.intercorrencia = self.livraria.textEdit.toPlainText()
             if self.codigo_livro_devoluir == "":
                 return QMessageBox.warning(self.livraria,"aviso", "insira um codigo antes de prosseguir com a devolução")
             self.x = devo()
+            self.z = conectar_banco()
             self.x.atualizar_alocado(self.codigo_livro_devoluir)
+        
+            #verificar bloqueado
+            self.g = conectar_banco()
+            self.g.executa_dql(f"select bloqueado from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir}")
+            if self.g.dados[0][0] == "True":
+               self.g.executa_dql(f"select clientes.id from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir}")
+               id = self.g.dados[0][0]
+               self.g.executa_dml(f"update clientes set bloqueado = 'False' where id = {id}")
+            self.g.executa_dql(f"select id_livro from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir}")
+            id_livru = self.g.dados[0][0]
+            self.g.executa_dml(f"update alocacao set atraso = 'False' where id_livro = {id_livru}")
+            self.g.executa_dml(f"update alocacao set estado = 'Devolvido' where id_livro = {id_livru}")
+            
+              
+              
+               
+                        
+            
             self.x.selecionar_id_cliente(self.codigo_livro_devoluir,self.intercorrencia)
             QMessageBox.warning(self.livraria,"aviso","devolução feita com sucesso")
-        except IndexError as error:
-            QMessageBox.warning(self.livraria,"erro",f"{error}")
+       
 
   
         

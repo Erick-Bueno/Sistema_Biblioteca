@@ -8,19 +8,23 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import date
 
+from banco import conectar_banco
+
 class Verify:
     def __init__(self):
         pass
     def verificando(self):
        print("verificando")
        self.data_atual = date.today()
-       self.sql2 = "select dataa from alocacao inner join clientes on clientes.id = alocacao.id_cliente inner join livros on livros.id = alocacao.id_livro;"
+       self.sql2 = "select dataa from alocacao inner join clientes on clientes.id = alocacao.id_cliente inner join livros on livros.id = alocacao.id_livro where estado = 'Em andamento'"
        self.con = mysql.connector.connect(host = "localhost", user = "root", password = "sirlei231", database = "biblioteca")
        self.cursor = self.con.cursor()
        self.cursor.execute(self.sql2)
        self.datas = self.cursor.fetchall()
        self.cursor.close()
        self.con.close()
+    
+       
        for c in range(len(self.datas)):
         self.dataa = self.data_atual > self.datas[c][0]
         if self.dataa == True:
@@ -47,8 +51,7 @@ class Verify:
                 self.con.commit()
                 self.cursor.close()
                 self.cursor.close()
-        else: 
-            print("tudo certo")
+       
     
 
    

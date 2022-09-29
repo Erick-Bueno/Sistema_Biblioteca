@@ -6,6 +6,7 @@ class devo:
         self.sql = f"update livros set Alocado = 'NÃO ALOCADO' where codigo = {codigo}"
         self.c = conectar_banco()
         self.c.executa_dml(self.sql)
+
     def selecionar_id_cliente(self, codigo, inter = 0):
             if inter != 0:
                 self.sql2 = f"select id_cliente from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {codigo}"

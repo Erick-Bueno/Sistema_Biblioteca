@@ -5,7 +5,7 @@ import smtplib
 
 class aloc_atrasada:
     def alocs_atrasadas(self):
-        self.sql = "select email from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where atraso = 'True'"
+        self.sql = "select email from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where atraso = 'True' and estado = 'em andamento'"
         self.c = conectar_banco()
         self.c.executa_dql(self.sql)
         self.emails = self.c.dados

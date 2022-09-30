@@ -16,3 +16,6 @@ Implementações:
  
  
  .Usuarios bloqueados não podem realizar alocações;
+ 
+ 
+ .Geração de ticket com dados de alocação;

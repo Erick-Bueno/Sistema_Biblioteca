@@ -19,7 +19,7 @@ class devo:
             self.sql2 = f"select id_cliente from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {codigo}"
             self.d = conectar_banco()
             self.d.executa_dql(self.sql2)
-            print(self.d.dados)
+           
 
         
             

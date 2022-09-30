@@ -1,6 +1,7 @@
 from datetime import date
 from distutils.log import error
 from mmap import PAGESIZE
+from operator import index
 from banco import conectar_banco
 from imgs import icones
 from PyQt5 import QtWidgets
@@ -241,7 +242,7 @@ class App(Verify):
         self.z.alocs_atrasadas()
  
     def devolucao(self):
-     
+     try:
             self.codigo_livro_devoluir = self.livraria.lineEdit_13.text()
             self.intercorrencia = self.livraria.textEdit.toPlainText()
             if self.codigo_livro_devoluir == "":
@@ -251,16 +252,18 @@ class App(Verify):
             self.x.atualizar_alocado(self.codigo_livro_devoluir)
         
             #verificar bloqueado
-            self.g = conectar_banco()
-            self.g.executa_dql(f"select bloqueado from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir}")
-            if self.g.dados[0][0] == "True":
-               self.g.executa_dql(f"select clientes.id from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir}")
-               id = self.g.dados[0][0]
-               self.g.executa_dml(f"update clientes set bloqueado = 'False' where id = {id}")
-            self.g.executa_dql(f"select id_livro from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir}")
-            id_livru = self.g.dados[0][0]
-            self.g.executa_dml(f"update alocacao set atraso = 'False' where id_livro = {id_livru}")
-            self.g.executa_dml(f"update alocacao set estado = 'Devolvido' where id_livro = {id_livru}")
+            self.z = conectar_banco()
+            self.z.executa_dql(f"select bloqueado from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir} and estado = 'Em andamento'")
+            print(self.z.dados[0][0])
+            if self.z.dados[0][0] == "True":
+                    self.z.executa_dql(f"select clientes.id from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir} and estado = 'Em andamento' ")
+                    id = self.z.dados[0][0]
+                    self.z.executa_dml(f"update clientes set bloqueado = 'False' where id = {id}")
+                    print(id)
+            self.z.executa_dql(f"select id_livro from alocacao inner join livros on livros.id = alocacao.id_livro inner join clientes on clientes.id = alocacao.id_cliente where codigo = {self.codigo_livro_devoluir}")
+            id_livru = self.z.dados[0][0]
+            self.z.executa_dml(f"update alocacao set atraso = 'False' where id_livro = {id_livru} and estado = 'Em andamento'")
+            self.z.executa_dml(f"update alocacao set estado = 'Devolvido' where id_livro = {id_livru}")
             
               
               
@@ -269,6 +272,9 @@ class App(Verify):
             
             self.x.selecionar_id_cliente(self.codigo_livro_devoluir,self.intercorrencia)
             QMessageBox.warning(self.livraria,"aviso","devolução feita com sucesso")
+     except IndexError:
+         QMessageBox.warning(self.livraria,"aviso","Codigo inserido não pertence a nenhum livro alocado")
+
        
 
   

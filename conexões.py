@@ -28,14 +28,14 @@ class Verify:
        for c in range(len(self.datas)):
         self.dataa = self.data_atual > self.datas[c][0]
         if self.dataa == True:
-            self.sql3 = f"update alocacao set alocacao.atraso = 'True' where alocacao.dataa = '{self.datas[c][0]}'"
+            self.sql3 = f"update alocacao set alocacao.atraso = 'True' where alocacao.dataa = '{self.datas[c][0]}' and estado = 'Em andamento'"
             self.con = mysql.connector.connect(host = "localhost", user = "root", password = "sirlei231", database = "biblioteca")
             self.cursor = self.con.cursor()
             self.cursor.execute(self.sql3)
             self.con.commit()
             self.cursor.close()
             self.cursor.close()
-            self.sql4 = f"select clientes.Nome from alocacao inner join clientes on clientes.id = alocacao.id_cliente inner join livros on livros.id = alocacao.id_livro where alocacao.dataa='{self.datas[c][0]}'"
+            self.sql4 = f"select clientes.Nome from alocacao inner join clientes on clientes.id = alocacao.id_cliente inner join livros on livros.id = alocacao.id_livro where alocacao.dataa='{self.datas[c][0]}' and atraso = 'True' "
             self.con = mysql.connector.connect(host = "localhost", user = "root", password= "sirlei231", database = "biblioteca")
             self.cursor = self.con.cursor()
             self.cursor.execute(self.sql4)
